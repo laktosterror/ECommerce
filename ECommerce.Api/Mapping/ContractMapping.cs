@@ -52,4 +52,51 @@ public static class ContractMapping
             Status = request.Status,
         };
     }
+    
+    public static Customer MapToCustomer(this CreateCustomerRequest request)
+    {
+        return new Customer
+        {
+            Id = Guid.NewGuid(),
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            Address = request.Address,
+        };
+    }
+
+    public static CustomerResponse MapToResponse(this Customer customer)
+    {
+        return new CustomerResponse
+        {
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Email = customer.Email,
+            PhoneNumber = customer.PhoneNumber,
+            Address = customer.Address,
+        };
+    }
+
+    public static CustomersResponse MapToResponse(this IEnumerable<Customer> customers)
+    {
+        return new CustomersResponse()
+        {
+            Items = customers.Select(MapToResponse)
+        };
+    }
+
+    public static Customer MapToCustomer(this UpdateCustomerRequest request, Guid id)
+    {
+        return new Customer
+        {
+            Id = id,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            Address = request.Address,
+        };
+    }
 }
