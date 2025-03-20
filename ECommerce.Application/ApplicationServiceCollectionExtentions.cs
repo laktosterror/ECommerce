@@ -9,6 +9,7 @@ public static class ApplicationServiceCollectionExtensions
     {
         services.AddSingleton<IProductRepository, ProductRepository>();
         services.AddSingleton<ICustomerRepository, CustomerRepository>();
+        services.AddSingleton<IOrderRepository, OrderRepository>();
         return services;
     }
 }

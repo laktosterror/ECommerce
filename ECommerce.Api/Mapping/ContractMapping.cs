@@ -99,4 +99,49 @@ public static class ContractMapping
             Address = request.Address,
         };
     }
+    
+    
+    public static Order MapToOrder(this CreateOrderRequest request)
+    {
+        return new Order
+        {
+            Id = Guid.NewGuid(),
+            CustomerId = request.CustomerId,
+            ProductIds = request.ProductIds,
+            OrderDate = request.OrderDate,
+            Status = request.Status,
+        };
+    }
+
+    public static OrderResponse MapToResponse(this Order order)
+    {
+        return new OrderResponse
+        {
+            Id = order.Id,
+            CustomerId = order.CustomerId,
+            ProductIds = order.ProductIds,
+            OrderDate = order.OrderDate,
+            Status = order.Status,
+        };
+    }
+
+    public static OrdersResponse MapToResponse(this IEnumerable<Order> orders)
+    {
+        return new OrdersResponse()
+        {
+            Items = orders.Select(MapToResponse)
+        };
+    }
+
+    public static Order MapToOrder(this UpdateOrderRequest request, Guid id)
+    {
+        return new Order
+        {
+            Id = id,
+            CustomerId = request.CustomerId,
+            ProductIds = request.ProductIds,
+            OrderDate = request.OrderDate,
+            Status = request.Status,
+        };
+    }
 }
