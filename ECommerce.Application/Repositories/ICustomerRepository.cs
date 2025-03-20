@@ -8,7 +8,6 @@ public interface ICustomerRepository
     Task<Customer?> GetByIdAsync(Guid id);
     Task<IEnumerable<Customer>> GetAllAsync();
     Task<bool> UpdateByIdAsync(Customer customer);
-
     Task<bool> DeleteByIdAsync(Guid id);
     // Task<List<Product>> SearchProductsAsync(string searchTerm);
 }
