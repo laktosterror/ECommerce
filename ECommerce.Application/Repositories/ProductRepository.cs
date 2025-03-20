@@ -4,14 +4,14 @@ namespace ECommerce.Application.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly List<Product> _products = new(); 
+    private readonly List<Product> _products = new();
 
     public Task<bool> CreateAsync(Product product)
     {
         _products.Add(product);
         return Task.FromResult(true);
     }
-    
+
     public Task<Product?> GetByIdAsync(Guid id)
     {
         var product = _products.SingleOrDefault(p => p.Id == id);
@@ -22,14 +22,11 @@ public class ProductRepository : IProductRepository
     {
         return Task.FromResult(_products.AsEnumerable());
     }
-    
+
     public Task<bool> UpdateByIdAsync(Product product)
     {
         var productIndex = _products.FindIndex(p => p.Id == product.Id);
-        if (productIndex == -1)
-        {
-            return Task.FromResult(false);
-        }
+        if (productIndex == -1) return Task.FromResult(false);
         _products[productIndex] = product;
         return Task.FromResult(true);
     }

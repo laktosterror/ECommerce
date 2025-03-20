@@ -1,5 +1,4 @@
 using ECommerce.Api.Mapping;
-using ECommerce.Application.Models;
 using ECommerce.Application.Repositories;
 using ECommerce.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -28,10 +27,7 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> Get([FromRoute] Guid id)
     {
         var customer = await _customerRepository.GetByIdAsync(id);
-        if (customer == null)
-        {
-            return NotFound();
-        }
+        if (customer == null) return NotFound();
         return Ok(customer.MapToResponse());
     }
 
@@ -47,10 +43,7 @@ public class CustomersController : ControllerBase
     {
         var customer = request.MapToCustomer(id);
         var updated = await _customerRepository.UpdateByIdAsync(customer);
-        if (!updated)
-        {
-            return NotFound();
-        }
+        if (!updated) return NotFound();
 
         var response = customer.MapToResponse();
         return Ok(response);
@@ -60,10 +53,7 @@ public class CustomersController : ControllerBase
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         var deleted = await _customerRepository.DeleteByIdAsync(id);
-        if (!deleted)
-        {
-            return NotFound();
-        }
+        if (!deleted) return NotFound();
 
         return Ok();
     }

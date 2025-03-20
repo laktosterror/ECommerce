@@ -1,5 +1,4 @@
 using ECommerce.Api.Mapping;
-using ECommerce.Application.Models;
 using ECommerce.Application.Repositories;
 using ECommerce.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost(ApiEndpoints.Products.Create)]
-    public async Task<IActionResult> Create([FromBody]CreateProductRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
     {
         var product = request.MapToProduct();
         await _productRepository.CreateAsync(product);
@@ -28,10 +27,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> Get([FromRoute] Guid id)
     {
         var product = await _productRepository.GetByIdAsync(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
+        if (product == null) return NotFound();
         return Ok(product.MapToResponse());
     }
 
@@ -48,10 +44,7 @@ public class ProductsController : ControllerBase
     {
         var product = request.MapToProduct(id);
         var updated = await _productRepository.UpdateByIdAsync(product);
-        if (!updated)
-        {
-            return NotFound();
-        }
+        if (!updated) return NotFound();
 
         var response = product.MapToResponse();
         return Ok(response);
@@ -61,10 +54,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         var deleted = await _productRepository.DeleteByIdAsync(id);
-        if (!deleted)
-        {
-            return NotFound();
-        }
+        if (!deleted) return NotFound();
 
         return Ok();
     }

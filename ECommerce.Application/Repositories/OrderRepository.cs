@@ -26,10 +26,7 @@ public class OrderRepository : IOrderRepository
     public Task<bool> UpdateAsync(Order order)
     {
         var orderIndex = _orders.FindIndex(o => o.Id == order.Id);
-        if (orderIndex == -1)
-        {
-            return Task.FromResult(false);
-        }
+        if (orderIndex == -1) return Task.FromResult(false);
         _orders[orderIndex] = order;
         return Task.FromResult(true);
     }

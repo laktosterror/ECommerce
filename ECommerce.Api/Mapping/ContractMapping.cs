@@ -15,7 +15,7 @@ public static class ContractMapping
             Description = request.Description,
             Price = request.Price,
             Category = request.Category,
-            Status = request.Status,
+            Status = request.Status
         };
     }
 
@@ -28,18 +28,18 @@ public static class ContractMapping
             Description = product.Description,
             Price = product.Price,
             Category = product.Category,
-            Status = product.Status,
+            Status = product.Status
         };
     }
 
     public static ProductsResponse MapToResponse(this IEnumerable<Product> products)
     {
-        return new ProductsResponse()
+        return new ProductsResponse
         {
             Items = products.Select(MapToResponse)
         };
     }
-    
+
     public static Product MapToProduct(this UpdateProductRequest request, Guid id)
     {
         return new Product
@@ -49,10 +49,10 @@ public static class ContractMapping
             Description = request.Description,
             Price = request.Price,
             Category = request.Category,
-            Status = request.Status,
+            Status = request.Status
         };
     }
-    
+
     public static Customer MapToCustomer(this CreateCustomerRequest request)
     {
         return new Customer
@@ -62,7 +62,7 @@ public static class ContractMapping
             LastName = request.LastName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
-            Address = request.Address,
+            Address = request.Address
         };
     }
 
@@ -75,13 +75,13 @@ public static class ContractMapping
             LastName = customer.LastName,
             Email = customer.Email,
             PhoneNumber = customer.PhoneNumber,
-            Address = customer.Address,
+            Address = customer.Address
         };
     }
 
     public static CustomersResponse MapToResponse(this IEnumerable<Customer> customers)
     {
-        return new CustomersResponse()
+        return new CustomersResponse
         {
             Items = customers.Select(MapToResponse)
         };
@@ -96,11 +96,11 @@ public static class ContractMapping
             LastName = request.LastName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
-            Address = request.Address,
+            Address = request.Address
         };
     }
-    
-    
+
+
     public static Order MapToOrder(this CreateOrderRequest request)
     {
         return new Order
@@ -109,7 +109,7 @@ public static class ContractMapping
             CustomerId = request.CustomerId,
             ProductIds = request.ProductIds,
             OrderDate = request.OrderDate,
-            Status = request.Status,
+            Status = request.Status
         };
     }
 
@@ -121,13 +121,13 @@ public static class ContractMapping
             CustomerId = order.CustomerId,
             ProductIds = order.ProductIds,
             OrderDate = order.OrderDate,
-            Status = order.Status,
+            Status = order.Status
         };
     }
 
     public static OrdersResponse MapToResponse(this IEnumerable<Order> orders)
     {
-        return new OrdersResponse()
+        return new OrdersResponse
         {
             Items = orders.Select(MapToResponse)
         };
@@ -141,7 +141,7 @@ public static class ContractMapping
             CustomerId = request.CustomerId,
             ProductIds = request.ProductIds,
             OrderDate = request.OrderDate,
-            Status = request.Status,
+            Status = request.Status
         };
     }
 }

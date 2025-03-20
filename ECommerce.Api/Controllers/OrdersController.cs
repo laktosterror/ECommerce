@@ -1,5 +1,4 @@
 using ECommerce.Api.Mapping;
-using ECommerce.Application.Models;
 using ECommerce.Application.Repositories;
 using ECommerce.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ namespace ECommerce.Api.Controllers;
 public class OrdersController : ControllerBase
 {
     private readonly IOrderRepository _orderRepository;
-    
+
     public OrdersController(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
@@ -28,10 +27,7 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> Get([FromRoute] Guid id)
     {
         var order = await _orderRepository.GetByIdAsync(id);
-        if (order == null)
-        {
-            return NotFound();
-        }
+        if (order == null) return NotFound();
         return Ok(order.MapToResponse());
     }
 
@@ -47,10 +43,7 @@ public class OrdersController : ControllerBase
     {
         var order = request.MapToOrder(id);
         var updated = await _orderRepository.UpdateAsync(order);
-        if (!updated)
-        {
-            return NotFound();
-        }
+        if (!updated) return NotFound();
 
         var response = order.MapToResponse();
         return Ok(response);
@@ -60,10 +53,7 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         var deleted = await _orderRepository.DeleteByIdAsync(id);
-        if (!deleted)
-        {
-            return NotFound();
-        }
+        if (!deleted) return NotFound();
 
         return Ok();
     }
