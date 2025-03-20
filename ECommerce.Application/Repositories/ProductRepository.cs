@@ -12,9 +12,9 @@ public class ProductRepository : IProductRepository
         return Task.FromResult(true);
     }
     
-    public Task<Product?> GetByIdAsync(Guid productId)
+    public Task<Product?> GetByIdAsync(Guid id)
     {
-        var product = _products.SingleOrDefault(m => m.Id == productId);
+        var product = _products.SingleOrDefault(p => p.Id == id);
         return Task.FromResult(product);
     }
 
@@ -25,7 +25,7 @@ public class ProductRepository : IProductRepository
     
     public Task<bool> UpdateByIdAsync(Product product)
     {
-        var productIndex = _products.FindIndex(m => m.Id == product.Id);
+        var productIndex = _products.FindIndex(p => p.Id == product.Id);
         if (productIndex == -1)
         {
             return Task.FromResult(false);
@@ -34,9 +34,9 @@ public class ProductRepository : IProductRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteByIdAsync(Guid productId)
+    public Task<bool> DeleteByIdAsync(Guid id)
     {
-        var removedCount = _products.RemoveAll(m => m.Id == productId);
+        var removedCount = _products.RemoveAll(p => p.Id == id);
         var productRemoved = removedCount > 0;
         return Task.FromResult(productRemoved);
     }
