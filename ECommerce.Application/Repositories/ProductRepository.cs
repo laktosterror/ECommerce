@@ -1,47 +1,45 @@
 using ECommerce.Application.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Application.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private readonly List<Product> _products = new();
+    private readonly ECommerceDbContext _context;
 
-    public Task<bool> CreateAsync(Product product)
+    public ProductRepository(ECommerceDbContext context)
     {
-        _products.Add(product);
-        return Task.FromResult(true);
+        _context = context;
     }
 
-    public Task<Product?> GetByIdAsync(Guid id)
+    public async Task<bool> CreateAsync(Product product)
     {
-        var product = _products.SingleOrDefault(p => p.Id == id);
-        return Task.FromResult(product);
+        await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<Product?> GetByIdAsync(Guid id)
     {
-        return Task.FromResult(_products.AsEnumerable());
+        return await _context.Products.FindAsync(id);
     }
 
-    public Task<bool> UpdateByIdAsync(Product product)
+    public async Task<IEnumerable<Product>> GetAllAsync()
     {
-        var productIndex = _products.FindIndex(p => p.Id == product.Id);
-        if (productIndex == -1) return Task.FromResult(false);
-        _products[productIndex] = product;
-        return Task.FromResult(true);
+        return await _context.Products.ToListAsync();
     }
 
-    public Task<bool> DeleteByIdAsync(Guid id)
+    public async Task<bool> UpdateByIdAsync(Product product)
     {
-        var removedCount = _products.RemoveAll(p => p.Id == id);
-        var productRemoved = removedCount > 0;
-        return Task.FromResult(productRemoved);
+        _context.Products.Update(product);
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    // public async Task<List<Product>> SearchProductsAsync(string searchTerm)
-    // {
-    //     return await _context.Products
-    //         .Where(p => p.ProductName.Contains(searchTerm) || p.ProductId.ToString().Contains(searchTerm))
-    //         .ToListAsync();
-    // }
+    public async Task<bool> DeleteByIdAsync(Guid id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null) return false;
+        _context.Products.Remove(product);
+        return await _context.SaveChangesAsync() > 0;
+    }
 }
