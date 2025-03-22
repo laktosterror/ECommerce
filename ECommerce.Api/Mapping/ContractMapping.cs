@@ -103,11 +103,18 @@ public static class ContractMapping
 
     public static Order MapToOrder(this CreateOrderRequest request)
     {
+        var id = Guid.NewGuid();
+        var orderProducts = request.ProductIds.Select(productId => new OrderProduct
+        {
+            OrderId = id,
+            ProductId = productId
+        }).ToList();
+        
         return new Order
         {
-            Id = Guid.NewGuid(),
+            Id = id,
             CustomerId = request.CustomerId,
-            ProductIds = request.ProductIds,
+            OrderProducts = orderProducts,
             OrderDate = request.OrderDate,
             Status = request.Status
         };
@@ -119,7 +126,7 @@ public static class ContractMapping
         {
             Id = order.Id,
             CustomerId = order.CustomerId,
-            ProductIds = order.ProductIds,
+            Products = order.OrderProducts.Select(op => op.Product.MapToResponse()).ToList(),
             OrderDate = order.OrderDate,
             Status = order.Status
         };
@@ -135,11 +142,17 @@ public static class ContractMapping
 
     public static Order MapToOrder(this UpdateOrderRequest request, Guid id)
     {
+        var orderProducts = request.ProductIds.Select(productId => new OrderProduct
+        {
+            OrderId = id,
+            ProductId = productId
+        }).ToList();
+
         return new Order
         {
             Id = id,
             CustomerId = request.CustomerId,
-            ProductIds = request.ProductIds,
+            OrderProducts = orderProducts,
             OrderDate = request.OrderDate,
             Status = request.Status
         };
