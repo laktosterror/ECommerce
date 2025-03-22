@@ -1,40 +1,44 @@
 using ECommerce.Application.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Application.Repositories;
 
 public class CustomerRepository : ICustomerRepository
 {
-    private readonly List<Customer> _customers = new();
+    private readonly ECommerceDbContext _context;
 
-    public Task<bool> CreateAsync(Customer customer)
+    public CustomerRepository(ECommerceDbContext context)
     {
-        _customers.Add(customer);
-        return Task.FromResult(true);
+        _context = context;
     }
 
-    public Task<Customer?> GetByIdAsync(Guid id)
+    public async Task<bool> CreateAsync(Customer customer)
     {
-        var customer = _customers.SingleOrDefault(c => c.Id == id);
-        return Task.FromResult(customer);
+        await _context.Customers.AddAsync(customer);
+        return await _context.SaveChangesAsync() > 0;
     }
 
-    public Task<IEnumerable<Customer>> GetAllAsync()
+    public async Task<Customer?> GetByIdAsync(Guid id)
     {
-        return Task.FromResult(_customers.AsEnumerable());
+        return await _context.Customers.FindAsync(id);
     }
 
-    public Task<bool> UpdateByIdAsync(Customer customer)
+    public async Task<IEnumerable<Customer>> GetAllAsync()
     {
-        var customerIndex = _customers.FindIndex(c => c.Id == customer.Id);
-        if (customerIndex == -1) return Task.FromResult(false);
-        _customers[customerIndex] = customer;
-        return Task.FromResult(true);
+        return await _context.Customers.ToListAsync();
     }
 
-    public Task<bool> DeleteByIdAsync(Guid id)
+    public async Task<bool> UpdateByIdAsync(Customer customer)
     {
-        var removedCount = _customers.RemoveAll(c => c.Id == id);
-        var customerRemoved = removedCount > 0;
-        return Task.FromResult(customerRemoved);
+        _context.Customers.Update(customer);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> DeleteByIdAsync(Guid id)
+    {
+        var customer = await _context.Customers.FindAsync(id);
+        if (customer == null) return false;
+        _context.Customers.Remove(customer);
+        return await _context.SaveChangesAsync() > 0;
     }
 }
