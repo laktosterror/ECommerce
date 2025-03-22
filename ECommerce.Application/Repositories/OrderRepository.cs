@@ -1,40 +1,46 @@
 using ECommerce.Application.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Application.Repositories;
 
 public class OrderRepository : IOrderRepository
 {
-    private readonly List<Order> _orders = new();
+    private readonly ECommerceDbContext _context;
 
-    public Task<bool> CreateAsync(Order order)
+    public OrderRepository(ECommerceDbContext context)
     {
-        _orders.Add(order);
-        return Task.FromResult(true);
+        _context = context;
     }
 
-    public Task<Order?> GetByIdAsync(Guid id)
+    public async Task<bool> CreateAsync(Order order)
     {
-        var order = _orders.SingleOrDefault(o => o.Id == id);
-        return Task.FromResult(order);
+        await _context.Orders.AddAsync(order);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public Task<IEnumerable<Order>> GetAllAsync()
+    public async Task<Order?> GetByIdAsync(Guid id)
     {
-        return Task.FromResult(_orders.AsEnumerable());
+        return await _context.Orders.FindAsync(id);
     }
 
-    public Task<bool> UpdateAsync(Order order)
+    public async Task<IEnumerable<Order>> GetAllAsync()
     {
-        var orderIndex = _orders.FindIndex(o => o.Id == order.Id);
-        if (orderIndex == -1) return Task.FromResult(false);
-        _orders[orderIndex] = order;
-        return Task.FromResult(true);
+        return await _context.Orders.ToListAsync();
     }
 
-    public Task<bool> DeleteByIdAsync(Guid id)
+    public async Task<bool> UpdateAsync(Order order)
     {
-        var removedCount = _orders.RemoveAll(o => o.Id == id);
-        var orderRemoved = removedCount > 0;
-        return Task.FromResult(orderRemoved);
+        _context.Orders.Update(order);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> DeleteByIdAsync(Guid id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+        if (order == null) return false;
+        _context.Orders.Remove(order);
+        return await _context.SaveChangesAsync() > 0;
     }
 }
+
