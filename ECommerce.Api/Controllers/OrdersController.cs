@@ -20,7 +20,10 @@ public class OrdersController : ControllerBase
     {
         var order = request.MapToOrder();
         await _orderRepository.CreateAsync(order);
-        return Created($"{ApiEndpoints.Orders.Create}/{order.Id}", order);
+
+        var createdOrder = await _orderRepository.GetByIdAsync(order.Id);
+        if (createdOrder == null) return NotFound();
+        return Created($"{ApiEndpoints.Orders.Create}/{order.Id}", createdOrder.MapToResponse());
     }
 
     [HttpGet(ApiEndpoints.Orders.Get)]
