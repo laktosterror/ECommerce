@@ -7,20 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MudBlazor" Version="8.3.0" />
+        <PackageReference Include="MudBlazor" Version="8.3.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Create.razor" />
-      <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Delete.razor" />
-      <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Details.razor" />
-      <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Edit.razor" />
-      <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Index.razor" />
+        <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Create.razor"/>
+        <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Delete.razor"/>
+        <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Details.razor"/>
+        <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Edit.razor"/>
+        <_ContentIncludedByDefault Remove="Components\Pages\ProductPages\Index.razor"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ECommerce.Application\ECommerce.Application.csproj" />
-      <ProjectReference Include="..\ECommerce.Contracts\ECommerce.Contracts.csproj" />
+        <ProjectReference Include="..\ECommerce.Application\ECommerce.Application.csproj"/>
+        <ProjectReference Include="..\ECommerce.Contracts\ECommerce.Contracts.csproj"/>
     </ItemGroup>
 
 </Project>

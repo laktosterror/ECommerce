@@ -1,6 +1,5 @@
-using System.Net.Http.Json;
-using ECommerce.Contracts.Responses;
 using ECommerce.Contracts.Requests;
+using ECommerce.Contracts.Responses;
 
 namespace ECommerce.Client.Services;
 
