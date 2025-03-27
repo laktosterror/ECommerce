@@ -1,0 +1,184 @@
+@page "/products"
+@using ECommerce.Client.Services
+@using ECommerce.Contracts.Requests
+@using ECommerce.Contracts.Responses
+@inject HttpClient httpClient
+@inject IProductService productService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudDataGrid
+    @ref="dataGrid"
+    T="ProductResponse"
+    ServerData="ServerReload"
+    Filterable="false"
+    ReadOnly="false"
+    StartedEditingItem="@StartedEditingItem"
+    CanceledEditingItem="@CanceledEditingItem"
+    CommittedItemChanges="@CommittedItemChanges">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h5">Products</MudText>
+        <MudSpacer/>
+        <MudSpacer/>
+        <MudButton OnClick="OpenCreateProductModal" Color="Color.Primary" Variant="Variant.Filled" class="mx-3">Create
+            Product
+        </MudButton>
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-1"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Id" Title="Product Id"/>
+        <PropertyColumn Property="x => x.Name"/>
+        <PropertyColumn Property="x => x.Description"/>
+        <PropertyColumn Property="x => x.Category"/>
+        <PropertyColumn Property="x => x.Price" Title="Price"/>
+        <PropertyColumn Property="x => x.Status" Title="Status"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="@Size.Small" Variant="@Variant.Filled"
+                                   Color="@Color.Primary" OnClick="@context.Actions.StartEditingItemAsync"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="@Size.Small" Variant="@Variant.Filled"
+                                   Color="@Color.Secondary" OnClick="@(() => OpenDeleteProductDialog(context.Item))"/>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ProductResponse"/>
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    MudDataGrid<ProductResponse> dataGrid;
+    string searchString;
+
+    private async Task<GridData<ProductResponse>> ServerReload(GridState<ProductResponse> state)
+    {
+        var data = (await productService.GetProductsAsync()).Items;
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if ($"{element.Id} {element.Category} {element.Price}".Contains(searchString))
+                return true;
+            return false;
+        }).ToArray();
+        var totalItems = data.Count();
+
+        var sortDefinition = state.SortDefinitions.FirstOrDefault();
+        if (sortDefinition != null)
+        {
+            switch (sortDefinition.SortBy)
+            {
+                case nameof(ProductResponse.Id):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Id
+                    );
+                    break;
+                case nameof(ProductResponse.Name):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Name
+                    );
+                    break;
+                case nameof(ProductResponse.Description):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Description
+                    );
+                    break;
+                case nameof(ProductResponse.Category):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Category
+                    );
+                    break;
+                case nameof(ProductResponse.Price):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Price
+                    );
+                    break;
+                case nameof(ProductResponse.Status):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Status
+                    );
+                    break;
+            }
+        }
+
+        var pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new GridData<ProductResponse>
+        {
+            TotalItems = totalItems,
+            Items = pagedData
+        };
+    }
+
+    private Task OnSearch(string text)
+    {
+        searchString = text;
+        return dataGrid.ReloadServerData();
+    }
+
+    void StartedEditingItem(ProductResponse item)
+    {
+    }
+
+    void CanceledEditingItem(ProductResponse item)
+    {
+    }
+
+    void CommittedItemChanges(ProductResponse item)
+    {
+        productService.UpdateProductAsync(item.Id, new UpdateProductRequest
+        {
+            Name = item.Name,
+            Description = item.Description,
+            Price = item.Price,
+            Category = item.Category,
+            Status = item.Status
+        });
+        Snackbar.Add($"Updated {item.Name}!");
+    }
+
+    private async Task OpenDeleteProductDialog(ProductResponse product)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var parameters = new DialogParameters<DeleteProductDialog> { ["Product"] = product };
+
+        var dialog = await DialogService.ShowAsync<DeleteProductDialog>("Delete Product", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var productToDelete = result.Data as ProductResponse;
+            await productService.DeleteProductAsync(productToDelete.Id);
+            await dataGrid.ReloadServerData();
+        }
+    }
+    
+    
+    private async Task OpenCreateProductModal()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<CreateProductDialog>("Create Product", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var newProduct = result.Data as CreateProductRequest;
+            await productService.CreateProductAsync(newProduct);
+            await dataGrid.ReloadServerData();
+        }
+    }
+}
