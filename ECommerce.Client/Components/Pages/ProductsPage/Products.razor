@@ -2,8 +2,7 @@
 @using ECommerce.Client.Services
 @using ECommerce.Contracts.Requests
 @using ECommerce.Contracts.Responses
-@inject HttpClient httpClient
-@inject IProductService productService
+@inject IProductService ProductService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
@@ -16,16 +15,16 @@
     StartedEditingItem="@StartedEditingItem"
     CanceledEditingItem="@CanceledEditingItem"
     CommittedItemChanges="@CommittedItemChanges">
-
+    
     <ToolBarContent>
         <MudText Typo="Typo.h5">Products</MudText>
         <MudSpacer/>
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-1"></MudTextField>
         <MudSpacer/>
         <MudButton OnClick="OpenCreateProductModal" Color="Color.Primary" Variant="Variant.Filled" class="mx-3">Create
             Product
         </MudButton>
-        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-1"></MudTextField>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.Id" Title="Product Id"/>
@@ -56,7 +55,7 @@
 
     private async Task<GridData<ProductResponse>> ServerReload(GridState<ProductResponse> state)
     {
-        var data = (await productService.GetProductsAsync()).Items;
+        var data = (await ProductService.GetProductsAsync()).Items;
         data = data.Where(element =>
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -139,7 +138,7 @@
 
     void CommittedItemChanges(ProductResponse item)
     {
-        productService.UpdateProductAsync(item.Id, new UpdateProductRequest
+        ProductService.UpdateProductAsync(item.Id, new UpdateProductRequest
         {
             Name = item.Name,
             Description = item.Description,
@@ -161,7 +160,7 @@
         if (!result.Canceled)
         {
             var productToDelete = result.Data as ProductResponse;
-            await productService.DeleteProductAsync(productToDelete.Id);
+            await ProductService.DeleteProductAsync(productToDelete.Id);
             await dataGrid.ReloadServerData();
         }
     }
@@ -177,7 +176,7 @@
         if (!result.Canceled)
         {
             var newProduct = result.Data as CreateProductRequest;
-            await productService.CreateProductAsync(newProduct);
+            await ProductService.CreateProductAsync(newProduct);
             await dataGrid.ReloadServerData();
         }
     }
