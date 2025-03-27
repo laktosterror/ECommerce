@@ -1,0 +1,34 @@
+@using ECommerce.Client.Services
+@using ECommerce.Contracts.Responses
+@inject ISnackbar Snackbar
+@inject IProductService ProductService
+
+<MudDialog>
+    <TitleContent>Delete Product</TitleContent>
+    <DialogContent>
+        Are you sure you want to delete the product: <strong>@Product.Name</strong>?
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="ConfirmDelete" Color="Color.Error">Delete</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter]
+    public ProductResponse Product { get; set; }
+    
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private async Task ConfirmDelete()
+    {
+        MudDialog.Close(DialogResult.Ok(Product));
+        Snackbar.Add("Product deleted successfully!", Severity.Success);
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
