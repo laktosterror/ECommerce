@@ -23,4 +23,10 @@
         <ProjectReference Include="..\ECommerce.Contracts\ECommerce.Contracts.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Pages\AdminPages\ProductsPage\CreateProductDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\AdminPages\ProductsPage\DeleteProductDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\AdminPages\ProductsPage\ProductsList.razor" />
+    </ItemGroup>
+
 </Project>
