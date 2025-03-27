@@ -1,0 +1,46 @@
+@using ECommerce.Client.Services
+@using ECommerce.Contracts.Requests
+@inject ISnackbar Snackbar
+
+<EditForm Model="_newProduct" OnValidSubmit="OnValidSubmit">
+    <MudDialog>
+        <TitleContent>Create Product</TitleContent>
+        <DialogContent>
+            <DataAnnotationsValidator/>
+            <MudTextField @bind-Value="_newProduct.Name" Label="Name" Required="true"/>
+            <MudTextField @bind-Value="_newProduct.Description" Label="Description" Required="true"/>
+            <MudTextField @bind-Value="_newProduct.Price" Label="Price" Required="true"/>
+            <MudTextField @bind-Value="_newProduct.Category" Label="Category" Required="true"/>
+            <MudTextField @bind-Value="_newProduct.Status" Label="Status" Required="true"/>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Create</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+
+    private readonly CreateProductRequest _newProduct = new()
+    {
+        Name = string.Empty,
+        Description = string.Empty,
+        Price = 0m,
+        Category = string.Empty,
+        Status = string.Empty
+    };
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+
+    private async Task OnValidSubmit(EditContext editContext)
+    {
+        MudDialog.Close(DialogResult.Ok(_newProduct));
+        Snackbar.Add("Product created successfully!", Severity.Success);
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
