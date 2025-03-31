@@ -24,9 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Components\Pages\AdminPage\ProductsTab\CreateProductDialog.razor" />
-      <AdditionalFiles Include="Components\Pages\AdminPage\ProductsTab\DeleteProductDialog.razor" />
-      <AdditionalFiles Include="Components\Pages\AdminPage\ProductsTab\ProductsList.razor" />
+        <AdditionalFiles Include="Components\Pages\AdminPage\ProductsTab\CreateProductDialog.razor"/>
+        <AdditionalFiles Include="Components\Pages\AdminPage\ProductsTab\DeleteProductDialog.razor"/>
+        <AdditionalFiles Include="Components\Pages\AdminPage\ProductsTab\ProductsList.razor"/>
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,4 @@
 @using ECommerce.Client.Services
-@using ECommerce.Contracts.Requests
 @using ECommerce.Contracts.Responses
 @inject IOrderService OrderService
 @inject ISnackbar Snackbar
@@ -44,7 +43,8 @@
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
-                <MudTable Outlined="true" Items="@context.Item.Products" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+                <MudTable Outlined="true" Items="@context.Item.Products" Hover="true" Breakpoint="Breakpoint.Sm"
+                          LoadingProgressColor="Color.Info">
                     <HeaderContent>
                         <MudTh>Id</MudTh>
                         <MudTh>Name</MudTh>
@@ -65,7 +65,7 @@
             </MudCardContent>
         </MudCard>
     </ChildRowContent>
-    
+
     <PagerContent>
         <MudDataGridPager T="OrderResponse"/>
     </PagerContent>
@@ -151,4 +151,5 @@
             await dataGrid.ReloadServerData();
         }
     }
+
 }

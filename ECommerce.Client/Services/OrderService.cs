@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using ECommerce.Contracts.Requests;
 using ECommerce.Contracts.Responses;
 
