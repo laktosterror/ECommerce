@@ -21,6 +21,7 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(Guid id)
     {
         return await _context.Orders
+            .Include(o => o.Customer)
             .Include(o => o.OrderProducts)
             .ThenInclude(op => op.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
@@ -29,6 +30,7 @@ public class OrderRepository : IOrderRepository
     public async Task<IEnumerable<Order>> GetAllAsync()
     {
         return await _context.Orders
+            .Include(o => o.Customer)
             .Include(o => o.OrderProducts)
             .ThenInclude(op => op.Product)
             .ToListAsync();
@@ -36,6 +38,25 @@ public class OrderRepository : IOrderRepository
 
     public async Task<bool> UpdateAsync(Order order)
     {
+        // var existingOrder = await _context.Orders
+        //     .Include(o => o.Customer)
+        //     .Include(o => o.OrderProducts)
+        //     .ThenInclude(op => op.Product)
+        //     .FirstOrDefaultAsync(o => o.Id ==order.Id);
+        //
+        // if (existingOrder == null)
+        // {
+        //     return false;
+        // }
+        //
+        // existingOrder.Status = order.Status;
+        // existingOrder.OrderProducts = order.OrderProducts;
+        //
+        // foreach (var orderProduct in order.OrderProducts)
+        // {
+        //     
+        // }
+        
         _context.Orders.Update(order);
         return await _context.SaveChangesAsync() > 0;
     }

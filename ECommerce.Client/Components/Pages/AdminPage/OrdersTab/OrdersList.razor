@@ -1,0 +1,172 @@
+@using ECommerce.Client.Services
+@using ECommerce.Contracts.Requests
+@using ECommerce.Contracts.Responses
+@inject IOrderService OrderService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudDataGrid
+    Striped="true"
+    @ref="dataGrid"
+    T="OrderResponse"
+    ServerData="ServerReload"
+    Filterable="false"
+    ReadOnly="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h5">Orders</MudText>
+        <MudSpacer/>
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-1"></MudTextField>
+        <MudSpacer/>
+        @* <MudButton OnClick="OpenCreateOrderModal" Color="Color.Primary" Variant="Variant.Filled" class="mx-3">Create *@
+        @*     Order *@
+        @* </MudButton> *@
+    </ToolBarContent>
+    <Columns>
+        <HierarchyColumn/>
+        <PropertyColumn Property="x => x.Id" Title="Order Id"/>
+        <PropertyColumn Property="x => x.CustomerFullName" Title="Customer"/>
+        <PropertyColumn Property="x => x.OrderDate" Title="Order Date"/>
+        <PropertyColumn Property="x => x.Status" Title="Status"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="@Size.Small" Variant="@Variant.Filled"
+                                   Color="@Color.Secondary" OnClick="@(() => OpenDeleteOrderDialog(context.Item))"/>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+    <ChildRowContent>
+        <MudCard Outlined="true">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Products In Order:</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTable Outlined="true" Items="@context.Item.Products" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh>Id</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Category</MudTh>
+                        <MudTh>Price</MudTh>
+                        <MudTh>Status</MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="SubContext">
+                        <MudTd DataLabel="Id">@SubContext.Id</MudTd>
+                        <MudTd DataLabel="Name">@SubContext.Name</MudTd>
+                        <MudTd DataLabel="Description">@SubContext.Description</MudTd>
+                        <MudTd DataLabel="Category">@SubContext.Category</MudTd>
+                        <MudTd DataLabel="Price">@SubContext.Price</MudTd>
+                        <MudTd DataLabel="Status">@SubContext.Status</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    </ChildRowContent>
+    
+    <PagerContent>
+        <MudDataGridPager T="OrderResponse"/>
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    MudDataGrid<OrderResponse> dataGrid;
+    string searchString;
+
+    private async Task<GridData<OrderResponse>> ServerReload(GridState<OrderResponse> state)
+    {
+        var data = (await OrderService.GetOrdersAsync()).Items;
+        data = data.Where(element =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (element.Status.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if ($"{element.Id} {element.CustomerFullName} {element.OrderDate}".Contains(searchString))
+                return true;
+            return false;
+        }).ToArray();
+        var totalItems = data.Count();
+
+        var sortDefinition = state.SortDefinitions.FirstOrDefault();
+        if (sortDefinition != null)
+        {
+            switch (sortDefinition.SortBy)
+            {
+                case nameof(OrderResponse.Id):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Id
+                    );
+                    break;
+                case nameof(OrderResponse.CustomerFullName):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.CustomerFullName
+                    );
+                    break;
+                case nameof(OrderResponse.OrderDate):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.OrderDate
+                    );
+                    break;
+                case nameof(OrderResponse.Status):
+                    data = data.OrderByDirection(
+                        sortDefinition.Descending ? SortDirection.Descending : SortDirection.Ascending,
+                        o => o.Status
+                    );
+                    break;
+            }
+        }
+
+        var pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new GridData<OrderResponse>
+        {
+            TotalItems = totalItems,
+            Items = pagedData
+        };
+    }
+
+    private Task OnSearch(string text)
+    {
+        searchString = text;
+        return dataGrid.ReloadServerData();
+    }
+
+    private async Task OpenDeleteOrderDialog(OrderResponse order)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var parameters = new DialogParameters<DeleteOrderDialog> { ["Order"] = order };
+
+        var dialog = await DialogService.ShowAsync<DeleteOrderDialog>("Delete Order", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var orderToDelete = result.Data as OrderResponse;
+            await OrderService.DeleteOrderAsync(orderToDelete.Id);
+            await dataGrid.ReloadServerData();
+        }
+    }
+
+    private async Task OpenCreateOrderModal()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<CreateOrderDialog>("Create Order", options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var newOrder = result.Data as CreateOrderRequest;
+            await OrderService.CreateOrderAsync(newOrder);
+            await dataGrid.ReloadServerData();
+        }
+    }
+}

@@ -15,6 +15,12 @@ builder.Services.AddHttpClient<IProductService, ProductService>(client =>
     client.BaseAddress = new Uri("http://localhost:5168");
 });
 
+builder.Services.AddHttpClient<IOrderService, OrderService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5168");
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

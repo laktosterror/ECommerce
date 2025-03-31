@@ -2,8 +2,8 @@ namespace ECommerce.Contracts.Requests;
 
 public class CreateOrderRequest
 {
-    public required Guid CustomerId { get; init; }
-    public required IEnumerable<Guid> ProductIds { get; init; }
-    public required DateTime OrderDate { get; init; }
-    public required string Status { get; init; }
+    public required Guid CustomerId { get; set; }
+    public required IEnumerable<Guid> ProductIds { get; set; }
+    public required DateTime OrderDate { get; set; }
+    public required string Status { get; set; }
 }

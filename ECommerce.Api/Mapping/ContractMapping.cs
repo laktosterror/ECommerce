@@ -126,6 +126,7 @@ public static class ContractMapping
         {
             Id = order.Id,
             CustomerId = order.CustomerId,
+            CustomerFullName = $"{order.Customer.FirstName} {order.Customer.LastName}",
             Products = order.OrderProducts.Select(op => op.Product.MapToResponse()).ToList(),
             OrderDate = order.OrderDate,
             Status = order.Status

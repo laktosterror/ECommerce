@@ -48,7 +48,8 @@ public class OrdersController : ControllerBase
         var updated = await _orderRepository.UpdateAsync(order);
         if (!updated) return NotFound();
 
-        var response = order.MapToResponse();
+        var updatedOrder = await _orderRepository.GetByIdAsync(id);
+        var response = updatedOrder.MapToResponse();
         return Ok(response);
     }
 
