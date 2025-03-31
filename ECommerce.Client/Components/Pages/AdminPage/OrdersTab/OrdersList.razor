@@ -19,9 +19,6 @@
         <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-1"></MudTextField>
         <MudSpacer/>
-        @* <MudButton OnClick="OpenCreateOrderModal" Color="Color.Primary" Variant="Variant.Filled" class="mx-3">Create *@
-        @*     Order *@
-        @* </MudButton> *@
     </ToolBarContent>
     <Columns>
         <HierarchyColumn/>
@@ -151,21 +148,6 @@
         {
             var orderToDelete = result.Data as OrderResponse;
             await OrderService.DeleteOrderAsync(orderToDelete.Id);
-            await dataGrid.ReloadServerData();
-        }
-    }
-
-    private async Task OpenCreateOrderModal()
-    {
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-
-        var dialog = await DialogService.ShowAsync<CreateOrderDialog>("Create Order", options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
-        {
-            var newOrder = result.Data as CreateOrderRequest;
-            await OrderService.CreateOrderAsync(newOrder);
             await dataGrid.ReloadServerData();
         }
     }
