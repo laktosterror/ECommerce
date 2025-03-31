@@ -1,0 +1,30 @@
+@using ECommerce.Contracts.Responses
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>Delete Order</TitleContent>
+    <DialogContent>
+        Are you sure you want to delete the order with ID: <strong>@Order.Id</strong>?
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="ConfirmDelete" Color="Color.Error">Delete</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public OrderResponse Order { get; set; }
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+
+    private void ConfirmDelete()
+    {
+        MudDialog.Close(DialogResult.Ok(Order));
+        Snackbar.Add("Order deleted successfully!", Severity.Success);
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
