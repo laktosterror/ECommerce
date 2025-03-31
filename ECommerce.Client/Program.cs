@@ -19,6 +19,10 @@ builder.Services.AddHttpClient<IOrderService, OrderService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5168");
 });
+builder.Services.AddHttpClient<ICustomerService, CustomerService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5168");
+});
 
 
 var app = builder.Build();

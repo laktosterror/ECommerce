@@ -1,0 +1,30 @@
+@using ECommerce.Contracts.Responses
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>Delete Customer</TitleContent>
+    <DialogContent>
+        Are you sure you want to delete: <strong>@Customer.FirstName @Customer.LastName</strong>?
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="ConfirmDelete" Color="Color.Error">Delete</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public CustomerResponse Customer { get; set; }
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+
+    private void ConfirmDelete()
+    {
+        MudDialog.Close(DialogResult.Ok(Customer));
+        Snackbar.Add("Customer deleted successfully!", Severity.Success);
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

@@ -1,0 +1,47 @@
+@using ECommerce.Api.Mapping
+@using ECommerce.Contracts.Requests
+@inject ISnackbar Snackbar
+
+<EditForm Model="_newCustomer" OnValidSubmit="OnValidSubmit">
+    <MudDialog>
+        <TitleContent>Create Customer</TitleContent>
+        <DialogContent>
+            <DataAnnotationsValidator/>
+            <MudTextField @bind-Value="_newCustomer.FirstName" Label="First Name" Required="true"/>
+            <MudTextField @bind-Value="_newCustomer.LastName" Label="Last Name" Required="true"/>
+            <MudTextField @bind-Value="_newCustomer.Email" Label="Email" Required="true"/>
+            <MudTextField @bind-Value="_newCustomer.PhoneNumber" Label="Phone Number" Required="true"/>
+            <MudTextField @bind-Value="_newCustomer.Address" Label="Address" Required="true"/>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Create</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+
+    private readonly CreateCustomerRequest _newCustomer = new()
+    {
+        FirstName = string.Empty,
+        LastName = string.Empty,
+        Email = string.Empty,
+        PhoneNumber = string.Empty,
+        Address = string.Empty
+    };
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+
+    private void OnValidSubmit(EditContext editContext)
+    {
+        MudDialog.Close(DialogResult.Ok(_newCustomer));
+        Snackbar.Add("Customer created successfully!", Severity.Success);
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}
