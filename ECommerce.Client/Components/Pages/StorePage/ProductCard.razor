@@ -1,0 +1,22 @@
+@using ECommerce.Contracts.Responses
+
+<MudCard Class="my-1 mx-1">
+    @* <MudCardMedia Image="images/door.jpg" Height="200" Class="rounded ma-4"/> *@
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" Class="rounded-lg ma-3"/>
+    <MudCardContent>
+        <MudText Typo="Typo.h5">@Product.Name</MudText>
+        <MudText Typo="Typo.body2">@Product.Description</MudText>
+        <MudText Typo="Typo.body2">Category: @Product.Category</MudText>
+        <MudText Typo="Typo.body2">Status: @Product.Status</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Class="mr-1" Variant="Variant.Filled" Color="Color.Primary">Add To Cart</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary">Details...</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code
+{
+    [Parameter]
+    public ProductResponse Product { get; set; }
+}
