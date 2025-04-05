@@ -1,3 +1,4 @@
+using System.Net.Security;
 using ECommerce.Application.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,16 @@ public class OrderRepository : IOrderRepository
             .Include(o => o.OrderProducts)
             .ThenInclude(op => op.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
+    }
+
+    public async Task<IEnumerable<Order>> GetAllByCustomerId(Guid id)
+    {
+        return await _context.Orders
+            .Where(o => o.CustomerId == id)
+            .Include(o => o.Customer)
+            .Include(o => o.OrderProducts)
+            .ThenInclude(op => op.Product)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Order>> GetAllAsync()

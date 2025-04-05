@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ECommerce.Application;
 public class ECommerceDbContext: DbContext
 {
+    public DbSet<User> Users { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<Product> Products { get; set; }
@@ -55,5 +56,10 @@ public class ECommerceDbContext: DbContext
             .HasMany(p => p.OrderProducts)
             .WithOne(op => op.Product)
             .HasForeignKey(op => op.ProductId);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Customer)
+            .WithOne()
+            .HasForeignKey<User>(u => u.CustomerId);
     }
 }

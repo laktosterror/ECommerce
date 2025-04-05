@@ -12,6 +12,10 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        
+        services.AddScoped<IJwtService, JwtService>();
+        
         return services;
     }
 

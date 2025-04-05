@@ -50,7 +50,7 @@ namespace ECommerce.Application.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("ECommerce.Application.Models.Order", b =>
@@ -73,7 +73,7 @@ namespace ECommerce.Application.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("ECommerce.Application.Models.OrderProduct", b =>
@@ -88,7 +88,7 @@ namespace ECommerce.Application.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderProducts", (string)null);
+                    b.ToTable("OrderProducts");
                 });
 
             modelBuilder.Entity("ECommerce.Application.Models.Product", b =>
@@ -118,7 +118,33 @@ namespace ECommerce.Application.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ECommerce.Application.Models.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique()
+                        .HasFilter("[CustomerId] IS NOT NULL");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ECommerce.Application.Models.Order", b =>
@@ -149,6 +175,15 @@ namespace ECommerce.Application.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ECommerce.Application.Models.User", b =>
+                {
+                    b.HasOne("ECommerce.Application.Models.Customer", "Customer")
+                        .WithOne()
+                        .HasForeignKey("ECommerce.Application.Models.User", "CustomerId");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("ECommerce.Application.Models.Customer", b =>

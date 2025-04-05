@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using ECommerce.Application.Models;
 using ECommerce.Contracts.Requests;
 using ECommerce.Contracts.Responses;
@@ -156,6 +158,70 @@ public static class ContractMapping
             OrderProducts = orderProducts,
             OrderDate = request.OrderDate,
             Status = request.Status
+        };
+    }
+    
+    public static User MapToUser(this CreateUserRequest request)
+    {
+        return new User
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            PasswordHash = HashPassword(request.Password),
+            Customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address
+            }
+        };
+    }
+    
+    public static UserResponse MapToResponse(this User user)
+    {
+        return new UserResponse
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.Customer.FirstName,
+            LastName = user.Customer.LastName,
+            PhoneNumber = user.Customer.PhoneNumber,
+            Address = user.Customer.Address
+        };
+    }
+    
+    private static string HashPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password);
+    }
+
+    public static User MapToUser(this UpdateUserRequest request, Guid id)
+    {
+        return new User
+        {
+            Id = id,
+            Email = request.Email,
+            PasswordHash = request.Password != null ? HashPassword(request.Password) : null,
+            Customer = new Customer
+            {
+                Id = id,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address
+            }
+        };
+    }
+    
+    public static UsersResponse MapToResponse(this IEnumerable<User> users)
+    {
+        return new UsersResponse()
+        {
+            Items = users.Select(MapToResponse)
         };
     }
 }
