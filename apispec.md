@@ -228,7 +228,7 @@
     - **Response**:
       ```json
       {
-        "message": "string",
+        "message": "string"
       }
       ```
 
