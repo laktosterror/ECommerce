@@ -7,12 +7,24 @@
 @inject IAuthService AuthService
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject IMyAccountService MyAccountService
+@inject ISnackbar Snackbar
 
 @code {
+    
+    bool isAuthenticated = false;
     MudDataGrid<OrderResponse> dataGrid;
-
-    private bool isAuthenticated = false;
-
+    string _newPassword = string.Empty;
+    
+    CustomerResponse _customerResponse = new()
+    {
+        Id = Guid.Empty,
+        Email = string.Empty,
+        FirstName = string.Empty,
+        LastName = string.Empty,
+        PhoneNumber = string.Empty,
+        Address = string.Empty
+    };
+    
     private SignInRequest _signInRequest = new()
     {
         Email = string.Empty,
@@ -33,14 +45,55 @@
     public async Task SignIn()
     {
         var signIn = await AuthService.SignInAsync(_signInRequest);
-        await ProtectedSessionStorage.SetAsync("jwt", signIn.Token);
-        isAuthenticated = true;
+        if (signIn != null)
+        {
+            await ProtectedSessionStorage.SetAsync("jwt", signIn.Token);
+            isAuthenticated = true;
+            Snackbar.Add("Logged in!", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Wrong email or password!", Severity.Error);
+        }
+    }
+
+    public async Task UpdateMyInfo()
+    {
+        var jwt = await ProtectedSessionStorage.GetAsync<string>("jwt");
+        if (jwt.Success)
+        {
+            UpdateUserRequest updateUserRequest = new()
+            {
+                Email = _customerResponse.Email,
+                FirstName = _customerResponse.FirstName,
+                LastName = _customerResponse.LastName,
+                Address = _customerResponse.Address,
+                PhoneNumber = _customerResponse.PhoneNumber,
+                Password = _newPassword
+            };
+
+            var response = await MyAccountService.UpdateMyUser(jwt.Value, updateUserRequest);
+            if (response != null)
+            {
+                Snackbar.Add("Updated user info!");
+            }
+            else
+            {
+                Snackbar.Add("Failed to update user!");
+            }
+        }
+        else
+        {
+            Snackbar.Add("You are not authenticated!");
+        }
     }
     
      private async Task<GridData<OrderResponse>> ServerReload(GridState<OrderResponse> state)
      { 
          var jwt = await ProtectedSessionStorage.GetAsync<string>("jwt"); 
          var data = (await MyAccountService.GetMyOrdersAsync(jwt.Value)).Items;
+         _customerResponse = await MyAccountService.GetMyInfo(jwt.Value);
+         StateHasChanged();
          
          var totalItems = data.Count();
          
@@ -57,15 +110,25 @@
 {
 <MudCard>
     <MudCardHeader>
-        My Account
+        <MudText Typo="Typo.h6">Welcome @_customerResponse.FirstName!</MudText>
     </MudCardHeader>
     <MudCardContent>
-        My information...
+        <EditForm Model="_customerResponse">
+            <DataAnnotationsValidator/>
+            <MudTextField @bind-Value="_customerResponse.FirstName" Label="First Name" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+            <MudTextField @bind-Value="_customerResponse.LastName" Label="Last Name" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+            <MudTextField @bind-Value="_customerResponse.Email" Label="Email" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+            <MudTextField @bind-Value="_customerResponse.PhoneNumber" Label="Phone Number" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+            <MudTextField @bind-Value="_customerResponse.Address" Label="Address" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+            <MudTextField @bind-Value="_newPassword" Label="New Password" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Password"/>
+
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" OnClick="UpdateMyInfo">Save</MudButton>
+        </EditForm>
     </MudCardContent>
 </MudCard>
 <MudCard>
     <MudCardHeader>
-        My Orders
+       <MudText Typo="Typo.h6">My Orders</MudText>
     </MudCardHeader>
     <MudCardContent>
         <MudDataGrid
@@ -129,11 +192,11 @@ else
             Access Denied, please sign in!
         </MudCardHeader>
         <MudCardContent>
-                        <DataAnnotationsValidator/>
-                        <MudTextField @bind-Value="_signInRequest.Email" Label="Email" Required="true"/>
-                        <MudTextField @bind-Value="_signInRequest.Password" InputType="InputType.Password" Label="Password" Required="true"/>
-                        
-                        <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Sign In</MudButton>
+            <DataAnnotationsValidator/>
+            <MudTextField @bind-Value="_signInRequest.Email" Label="Email" Required="true"/>
+            <MudTextField @bind-Value="_signInRequest.Password" InputType="InputType.Password" Label="Password" Required="true"/>
+            
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Sign In</MudButton>
         </MudCardContent>
     </MudCard>
 </EditForm>

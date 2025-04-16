@@ -1,3 +1,4 @@
+using System.Net;
 using ECommerce.Contracts.Requests;
 using ECommerce.Contracts.Responses;
 
@@ -15,7 +16,10 @@ public class AuthService : IAuthService
     public async Task<SignInResponse> SignInAsync(SignInRequest request)
     {
         var response = await _httpClient.PostAsJsonAsync("api/signin", request);
-        response.EnsureSuccessStatusCode();
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            return null;
+        }
         return await response.Content.ReadFromJsonAsync<SignInResponse>();
     }
 }

@@ -35,9 +35,12 @@ namespace ECommerce.Application.Repositories
         }
 
 
-        public async Task<bool> UpdateByIdAsync(User user)
+        public async Task<bool> UpdateByIdAsync(Guid id, User user)
         {
-            _context.Users.Update(user);
+            var currentUser = await _context.Users.FindAsync(id);
+            currentUser = user;
+            //TODO: kolla så det funkar
+            _context.Users.Update(currentUser);
             return await _context.SaveChangesAsync() > 0;
         }
 

@@ -42,7 +42,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateUserRequest request)
     {
         var user = request.MapToUser(id);
-        var updated = await _userRepository.UpdateByIdAsync(user);
+        var updated = await _userRepository.UpdateByIdAsync(id, user);
         if (!updated) return NotFound();
 
         var response = user.MapToResponse();

@@ -32,6 +32,8 @@ builder.Services.AddHttpClient<IMyAccountService, MyAccountService >(client =>
     client.BaseAddress = new Uri("http://localhost:5168");
 });
 
+builder.Services.AddScoped<ICartService, CartService>();
+
 
 var app = builder.Build();
 

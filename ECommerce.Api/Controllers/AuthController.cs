@@ -74,9 +74,65 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("myorders")]
-    public async Task<IActionResult> GetMyOrders([FromRoute] Guid id)
+    public async Task<IActionResult> GetMyOrders()
     {
-        var orders = await _orderRepository.GetAllByCustomerId(id);
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(email))
+        {
+            return NotFound();
+        }
+
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return NotFound();
+        }
+        var orders = await _orderRepository.GetAllByCustomerId(user.Customer.Id);
         return Ok(orders.MapToResponse());
+    }
+
+    [Authorize]
+    [HttpPut("updatemyuser")]
+    public async Task<IActionResult> UpdateMyUser([FromBody] UpdateUserRequest updateUserRequest)
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        var currentUserState = await _userRepository.GetByEmailAsync(email);
+        
+
+        currentUserState.Email = updateUserRequest.Email;
+        currentUserState.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updateUserRequest.Password);
+        currentUserState.Customer.Email = updateUserRequest.Email;
+        currentUserState.Customer.FirstName = updateUserRequest.FirstName;
+        currentUserState.Customer.LastName = updateUserRequest.LastName;
+        currentUserState.Customer.PhoneNumber = updateUserRequest.PhoneNumber;
+        currentUserState.Customer.Address = updateUserRequest.Address;
+
+        await _userRepository.UpdateByIdAsync(currentUserState.Id, currentUserState);
+
+        return Ok(currentUserState.MapToResponse());
+    }
+
+    [Authorize]
+    [HttpPost("createmyorder")]
+    public async Task<IActionResult> CreateMyOrder([FromBody] CreateOrderRequest createOrderRequest)
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(email))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        createOrderRequest.CustomerId = user.Customer.Id;
+        createOrderRequest.Status = "Waiting";
+        createOrderRequest.OrderDate = DateTime.Now;
+        
+        var result = await _orderRepository.CreateAsync(createOrderRequest.MapToOrder());
+        return Ok();
     }
 }

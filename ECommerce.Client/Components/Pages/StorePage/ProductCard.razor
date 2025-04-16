@@ -10,13 +10,18 @@
         <MudText Typo="Typo.body2">Status: @Product.Status</MudText>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Class="mr-1" Variant="Variant.Filled" Color="Color.Primary">Add To Cart</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary">Details...</MudButton>
+        <MudButton Class="mr-1" Variant="Variant.Filled" Color="Color.Primary" OnClick="AddToCart">Add To Cart</MudButton>
     </MudCardActions>
 </MudCard>
 
 @code
 {
-    [Parameter]
-    public ProductResponse Product { get; set; }
+    [Parameter] public ProductResponse Product { get; set; }
+    [Parameter] public EventCallback<ProductResponse> OnAddToCart { get; set; }
+
+    private async Task AddToCart()
+    {
+        await OnAddToCart.InvokeAsync(Product);
+    }
+    
 }

@@ -1,0 +1,45 @@
+@using ECommerce.Contracts.Requests
+@using ECommerce.Contracts.Responses
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>Your Cart</TitleContent>
+    <DialogContent>
+        @if (Cart != null && Cart.Any())
+        {
+            <MudTable Outlined="true" Items="Cart" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Price</MudTh>
+                    <MudTh>Status</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="Context">
+                    <MudTd DataLabel="Name">@Context.Name</MudTd>
+                    <MudTd DataLabel="Price">@Context.Price</MudTd>
+                    <MudTd DataLabel="Status">@Context.Status</MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+        else
+        {
+            <MudText>Your cart is empty.</MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="ConfirmOrder">Order Now!</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public IEnumerable<ProductResponse> Cart { get; set; }
+
+    private void ConfirmOrder()
+    {
+        MudDialog.Close(DialogResult.Ok(Cart));
+    }
+}

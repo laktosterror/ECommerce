@@ -1,8 +1,15 @@
 @page "/Store"
 @page "/"
 @using ECommerce.Client.Services
+@using ECommerce.Contracts.Requests
 @using ECommerce.Contracts.Responses
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject IProductService ProductService
+@inject ICartService CartService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IMyAccountService MyAccountService
+@inject ProtectedSessionStorage ProtectedSessionStorage
 
 
 @if (IsLoading)
@@ -15,10 +22,11 @@ else
         @foreach (var product in Products)
         {
             <MudItem xs="12" sm="6" md="4" lg="3">
-                <ProductCard Product="product"/>
+                <ProductCard Product="product" OnAddToCart="AddToCart"/>
             </MudItem>
         }
     </MudGrid>
+    <MudButton OnClick="OpenCartDialog">View Cart</MudButton>
 }
 
 
@@ -26,13 +34,72 @@ else
 @code {
     public int Spacing { get; set; } = 6;
 
+    bool isAuthenticated = false;
+
     public bool IsLoading { get; set; } = true;
     
     public IEnumerable<ProductResponse> Products { get; set; }
+    
+    public IEnumerable<ProductResponse> Cart { get; set; }
+
+    private ProtectedBrowserStorageResult<string> availableJwt { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Products = (await ProductService.GetProductsAsync()).Items;
         IsLoading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        availableJwt = await ProtectedSessionStorage.GetAsync<string>("jwt");
+        if (availableJwt.Success)
+        {
+            isAuthenticated = true;
+        }
+        
+        if (firstRender)
+        {
+            Cart = await CartService.GetCartAsync();
+        }
+    }
+    
+    private async Task AddToCart(ProductResponse productResponse)
+    {
+        await CartService.AddToCartAsync(productResponse);
+        Cart = await CartService.GetCartAsync();
+        Snackbar.Add("Item added to cart!", Severity.Success);
+    }
+    
+    private async Task OpenCartDialog()
+    {
+        var parameters = new DialogParameters { ["Cart"] = Cart };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<CartDialog>("Your Cart", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled && Cart != null && Cart.Any())
+        {
+            var productsFromCart = result.Data as IEnumerable<ProductResponse>;
+            var order = new CreateOrderRequest()
+            {
+                Status = string.Empty,
+                CustomerId = Guid.Empty,
+                OrderDate = DateTime.Now,
+                ProductIds = productsFromCart.Select(p => p.Id).ToList()
+            };
+            if (isAuthenticated)
+            {
+                await MyAccountService.MakeOrder(availableJwt.Value, order);
+                Snackbar.Add("Order processed, check my account page!", Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("You are not signed in! Go to my account to sign in!", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Cart is empty! Add products first!", Severity.Error);
+        }
     }
 };
