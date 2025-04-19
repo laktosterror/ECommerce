@@ -48,8 +48,8 @@ jobs:
       - name: Build and export to Docker
         uses: docker/build-push-action@v6
         with:
-          context: ./ECommerce
-          file: ./ECommerce/ECommerce.Client/Dockerfile
+          context: .
+          file: ./ECommerce.Client/Dockerfile
           load: true
           tags: ${{ env.TEST_TAG }}
 
@@ -75,8 +75,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: ./ECommerce
-          file: ./ECommerce/ECommerce.Client/Dockerfile
+          context: .
+          file: ./ECommerce.Client/Dockerfile
           push: true
           tags: ${{ env.REGISTRY}}/${{ env.REPO_LC }}:latest
           labels: ${{ steps.meta.outputs.labels }}
