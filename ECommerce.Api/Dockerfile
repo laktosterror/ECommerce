@@ -9,7 +9,7 @@ RUN dotnet publish ECommerce.Api -c release -o /app  \
     /p:PublishTrimmed=true \
     /p:PublishSingleFile=true
 
-FROM alpine:3.21
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0.15-noble-chiseled
 WORKDIR /app
 COPY --from=build /app .
 ENTRYPOINT ["./ECommerce.Api"]
