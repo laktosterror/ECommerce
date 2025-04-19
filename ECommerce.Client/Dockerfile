@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /source
 COPY . .
 RUN dotnet restore ECommerce/ECommerce.Client --runtime linux-x64
+RUN ls
 RUN dotnet publish ECommerce/ECommerce.Client -c release -o /app  \
     --runtime linux-x64  \
     --no-restore \
