@@ -22,12 +22,7 @@ public class AuthController : ControllerBase
         _orderRepository = orderRepository;
         _jwtService = jwtService;
     }
-
-    /// <summary>
-    /// Authenticates a user and returns a JWT token.
-    /// </summary>
-    /// <param name="request">The sign-in request.</param>
-    /// <returns>The sign-in response containing the JWT token.</returns>
+    
     [HttpPost(ApiEndpoints.Auth.SignIn)]
     public async Task<IActionResult> SignIn([FromBody] SignInRequest request)
     {
@@ -52,6 +47,15 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpPost(ApiEndpoints.Auth.Register)]
+    public async Task<IActionResult> SignUp([FromBody] CreateUserRequest request)
+    {
+        var user = request.MapToUser();
+        await _userRepository.CreateAsync(user);
+        return Ok();
+    }
+    
 
     [Authorize]
     [HttpGet("myaccount")]

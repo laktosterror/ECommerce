@@ -22,4 +22,15 @@ public class AuthService : IAuthService
         }
         return await response.Content.ReadFromJsonAsync<SignInResponse>();
     }
+
+    public async Task<bool> SignUpAsync(CreateUserRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/register", request);
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

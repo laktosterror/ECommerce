@@ -8,12 +8,13 @@
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject IMyAccountService MyAccountService
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 @code {
     
     bool isAuthenticated = false;
     MudDataGrid<OrderResponse> dataGrid;
-    string _newPassword = string.Empty;
+    string _updatedPassword = string.Empty;
     
     CustomerResponse _customerResponse = new()
     {
@@ -29,6 +30,15 @@
     {
         Email = string.Empty,
         Password = string.Empty
+    };
+    private CreateUserRequest _createUserRequest = new()
+    {
+        Email = string.Empty,
+        Password = string.Empty,
+        FirstName = string.Empty,
+        LastName = string.Empty,
+        PhoneNumber = string.Empty,
+        Address = string.Empty
     };
 
     protected override async Task OnInitializedAsync()
@@ -57,6 +67,15 @@
         }
     }
 
+    public async Task SignUp()
+    {
+        var signedUp = await AuthService.SignUpAsync(_createUserRequest);
+        if (signedUp)
+        {
+            Snackbar.Add("Signed up! Proceed to login", Severity.Success);
+        }
+    }
+
     public async Task UpdateMyInfo()
     {
         var jwt = await ProtectedSessionStorage.GetAsync<string>("jwt");
@@ -69,7 +88,7 @@
                 LastName = _customerResponse.LastName,
                 Address = _customerResponse.Address,
                 PhoneNumber = _customerResponse.PhoneNumber,
-                Password = _newPassword
+                Password = _updatedPassword
             };
 
             var response = await MyAccountService.UpdateMyUser(jwt.Value, updateUserRequest);
@@ -120,7 +139,7 @@
             <MudTextField @bind-Value="_customerResponse.Email" Label="Email" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
             <MudTextField @bind-Value="_customerResponse.PhoneNumber" Label="Phone Number" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
             <MudTextField @bind-Value="_customerResponse.Address" Label="Address" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
-            <MudTextField @bind-Value="_newPassword" Label="New Password" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Password"/>
+            <MudTextField @bind-Value="_updatedPassword" Label="New Password" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Password"/>
 
             <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" OnClick="UpdateMyInfo">Save</MudButton>
         </EditForm>
@@ -186,18 +205,36 @@
 }
 else
 { 
-<EditForm Model="_signInRequest" OnValidSubmit="SignIn">
-    <MudCard>
-        <MudCardHeader>
-            Access Denied, please sign in!
-        </MudCardHeader>
-        <MudCardContent>
-            <DataAnnotationsValidator/>
-            <MudTextField @bind-Value="_signInRequest.Email" Label="Email" Required="true"/>
-            <MudTextField @bind-Value="_signInRequest.Password" InputType="InputType.Password" Label="Password" Required="true"/>
+    <EditForm Model="_signInRequest" OnValidSubmit="SignIn">
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h3">Sign in!</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <DataAnnotationsValidator/>
+                <MudTextField @bind-Value="_signInRequest.Email" Label="Email" Required="true"/>
+                <MudTextField @bind-Value="_signInRequest.Password" InputType="InputType.Password" Label="Password" Required="true"/>
             
-            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Sign In</MudButton>
-        </MudCardContent>
-    </MudCard>
-</EditForm>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Sign In</MudButton>
+            </MudCardContent>
+        </MudCard>
+    </EditForm>
+    <EditForm Model="_createUserRequest" OnSubmit="SignUp">
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h3">Or Register!</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <DataAnnotationsValidator/>
+                <MudTextField @bind-Value="_createUserRequest.FirstName" Label="First Name" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                <MudTextField @bind-Value="_createUserRequest.LastName" Label="Last Name" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                <MudTextField @bind-Value="_createUserRequest.Email" Label="Email" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                <MudTextField @bind-Value="_createUserRequest.PhoneNumber" Label="Phone Number" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                <MudTextField @bind-Value="_createUserRequest.Address" Label="Address" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                <MudTextField @bind-Value="_createUserRequest.Password" Label="New Password" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Password"/>
+
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Secondary">Register</MudButton>
+            </MudCardContent>
+        </MudCard>
+    </EditForm>
 }
